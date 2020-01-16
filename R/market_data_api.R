@@ -134,11 +134,4 @@ api.call <- function(url_base, params) {
 }
 
 
-code <- "FB"
-start_date <- "2017-12-31"
-end_date <- "2018-12-31"
-collapse <- "daily"
-api_key <- "Xsgzx1TsTQY6YFLRf8at"
 
-
-x <- get.dataset(code, start_date, end_date, collapse, api_key)
