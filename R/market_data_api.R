@@ -1,6 +1,6 @@
 #' End of day US Stock Prices
 #'
-#' Retrieves data from the Quandl Dataset.
+#' Retrieve data from the Quandl Dataset.
 #' @param code string or list of strings, code a.k.a ticker symbol on Quandle.
 #' @param start_date A Date object, format="YYYY-MM-DD". Retrieve data rows on and after the specified start date.
 #' @param end_date A Date object, format="YYYY-MM-DD". Retrieve data rows up to and including the specified end date.
@@ -14,14 +14,14 @@
 #' end_date <- "2018-12-31"
 #' collapse <- "daily"
 #' api_key <- "Xsgzx1TsTQY6YFLRf8at"
-#' market_date <- get.market.date (code=code, start_date=start_date, end_date=end_date, collapse=collapse, api_key=api_key)
+#' time_series <- get.market.data (code=code, start_date=start_date, end_date=end_date, collapse=collapse, api_key=api_key)
 #' }
 #' @note Due to Quandle database specification, all ".", " " symbols are represented as "_".
 #' @references This R package uses the Quandl API. For more information go to \url{https://www.quandl.com/docs/api}. For more help on the package itself go to \url{https://www.quandl.com/help/r}.
 #' @export
 get.market.data <- function(code, start_date, end_date,
-                           collapse=c("daily", "weekly", "monthly", "quarterly", "annual"),
-                           api_key, skipNullStocks = FALSE, skipNA = FALSE) {
+                            collapse=c("daily", "weekly", "monthly", "quarterly", "annual"),
+                            api_key, skipNullStocks = FALSE, skipNA = FALSE) {
   
   # check if code is correct
   if (!all(gsub("[^A-Z0-9_.]", "", code) == code)) {
@@ -44,48 +44,20 @@ get.market.data <- function(code, start_date, end_date,
     }
   }
   
-  
   # setup params for GET request
   params <- list()
-  params$collapse <- "daily"
+  params$collapse <- collapse
   params$start_date <- as.Date(start_date, format = "%Y-%m-%d")
   params$end_date <- as.Date(end_date, format = "%Y-%m-%d")
   params$api_key <- api_key
-  params$column_index <- 11
-  params$transform <- "rdiff"
   
-  missingCodes <- c()
-  tempRes <- NULL
+  result <- list()
   
   for (c in code) {
-    
-    df <- get.dataset(c, params, skipNullStocks)
-    
-    # check if a dataset has been found
-    if (is.null(df)) {
-      missingCodes <- append(missingCodes, c)
-      next
-    }
-    
-    # // TODO
-    # print(length(df[, 2]))
-    # print(as.integer(difftime(end_date, start_date,  unit="weeks")))
-    if (!(length(df[, 2] & skipNA == TRUE) == as.integer(difftime(end_date, start_date,  unit="weeks")))) {
-      missingCodes <- append(missingCodes, c)
-      next
-    }
-    
-    # merge data.frames
-    if (is.null(tempRes)) {
-      tempRes <- df
-    } else {
-      tempRes <- merge(tempRes, df, by = "date", all = TRUE)
-    }
-    
+    result[[c]] <- get.dataset(c, params, skipNullStocks)
   }
   
-  return(list("data"=tempRes, "missingCodes"=missingCodes))
-  
+  return(result)
 }
 
 get.dataset <- function(code, params, skipNullStocks) {
@@ -103,16 +75,19 @@ get.dataset <- function(code, params, skipNullStocks) {
                          code, params$start_date, params$end_date, params$collapse))
       return(NULL)
     }
-    
   }
   
   fin_data <- data.frame(json$data, stringsAsFactors = FALSE)
-  names(fin_data) <- c("date", code)
+  names(fin_data) <- paste(json$column_names, sep = "_", code)
+  names(fin_data)[1] <- "Date"
   
   fin_data[, 1] <- as.Date(fin_data[, 1])
-  fin_data[, 2] <- as.numeric(fin_data[, 2])
   
-  return(fin_data)
+  for (i in 2:length(fin_data)) {
+    fin_data[[i]] <- as.numeric(fin_data[[i]])
+  }
+  
+  return(fin_data[order(fin_data$Date), ] )
   
 }
 

@@ -52,7 +52,28 @@ build_end_df <- function(df) {
   res <- res[order(res$price), ] 
 }
 
-plot.timeseries <- function(time_series, codes=NULL, column_names, collapse="2 weeks", func=NULL, ...) {
+#' Plot Quandl time-series
+#'
+#' Plot time-sereis from the Quandl Dataset.
+#' @param time_series List of data.frame retrieved from Quandl Dataset.
+#' @param column_names 	String or list of strings of titles for each column in this time-series. Map one or more columns from each time-sereis
+#' @param codes String or list of strings, code a.k.a ticker symbol on Quandle to be plotted. If NULL, then all codes are being included into a plot.
+#' @param collapse A string giving the distance between breaks like "2 weeks", or "10 years". Default is 2 weeks.
+#' @param func If FALSE, STOP is a code for a predefined date range is not found, otherwise WARNIGN. Default=FALSE
+#' @param ... Other arguments passed on to methods. Not currently used.
+#' @return a ggplot object
+#' @examples \dontrun{
+#' # Plot only only High and Low prices for each code (symbol) 
+#' plot.timeseries (time_series=time_series, column_names=c("High", "Low"), codes=c("FB", "AAPL"))
+#' 
+#' # Plot only only Open and Close prices for Facebook (FB) and Apple (AAPL)
+#' plot.timeseries (time_series=time_series, column_names=c("Open", "Close"), codes=c("FB", "AAPL"))
+#' 
+#' # Plot only only Open and Close prices for Facebook (FB) and Apple (AAPL) and add square root function
+#' plot.timeseries (time_series=time_series, column_names=c("Open", "Close"), codes=c("FB", "AAPL"), func=y~sqrt(x))
+#' }
+#' @export
+plot.timeseries <- function(time_series, column_names, codes=NULL, collapse="2 weeks", func=NULL, ...) {
   
   if (is.null(codes)) {
     codes <- names(time_series)
@@ -139,90 +160,3 @@ plot.barcharts <- function(time_series, codes=NULL, column_names, collapse="2 we
     guides(colour = guide_legend(title.position = "left"))
   p
 }
-
-
-plot.barcharts(x, column_names=c("Open", "Close", "Low"))
-
-p <- ggplot(x, aes(x=Date, y=Open)) +
-  geom_line() + 
-  xlab("FB")
-p
-
-my.plot <- ggplot(data=data_series$AAPL, aes(x=Date, y=Close, group = 1))+
-  geom_line(color="#FAB521", size=1) + 
-  geom_line(aes(x=Date, y=Open), color="#FAB521", size=0.5) + 
-  scale_y_continuous(position="right") +
-  scale_x_date(expand=c(0,0)) +
-  theme(panel.background = element_rect(fill='#393939'),
-        panel.grid.major.x = element_blank(),
-        axis.text.x = element_text(hjust = 0),
-        panel.grid.major.y = element_line(colour = 'white', size=0.1),
-        panel.grid.minor = element_line(colour = 'white', size=0.1))
-my.plot
-
-dat <- x
-
-dat$date <- dat$Date
-dat$price <- dat$Open
-
-p <- ggplot(dat, aes(x = date, y = price)) +
-  geom_line(color="#FAB521", size=1) + 
-  geom_line(aes(x=Date, y=Close), color="#FAB521", size=0.5) + 
-  scale_y_continuous(position="right") +
-  scale_x_date(date_breaks = "2 weeks", date_labels = "%b %Y") + 
-  ggtitle("AAPL | Open Price | 1D | 06/05/2016 | 06/08/2016") + 
-  add_theme() + 
-  coord_cartesian(ylim=c(min(dat$price) - 1, max(dat$price) + 1),
-                  xlim=c(min(dat$date) + 4, max(dat$date)) )  + 
-  add_last_price(max(dat$date), dat$price[dat$date==max(dat$date)])
-
-gt <-  ggplot_gtable(ggplot_build(p))
-
-# gt$layout$clip[gt$layout$name == "panel"] <- "off"
-grid.draw(gt)
-
-  annotate("rect", xmin=max(dat$date) + 0.75, xmax=max(dat$date) + 7.25, 
-           ymin=dat$price[dat$date==max(dat$date)] - 0.25, 
-           ymax=dat$price[dat$date==max(dat$date)] + 0.25, fill="white", colour="black") +
-  annotate("text", max(dat$date) + 1, dat$price[dat$date==max(dat$date)], 
-           label=paste0("$", round(dat$price[dat$date==max(dat$date)],2)), 
-           colour="black", hjust=0)
-
-
-z <- x
-x <- filter(z$GOOG, Date != "2018-04-01")
-y <- z$FB
-
-q <- merge(x, y, by = "Date")
-
-
-multi_full <- Reduce(function(x, y, ...) merge(x, y, all = TRUE, by="Date", suffixes = c(".x",".y")),
-                      z)
-
-multi_full <- x %>% 
-  reduce(full_join, by="Date") %>%
-  select(Date, starts_with("Open"))
-
-
-s <- multi_full %>% 
-  filter(Date == min(Date))
-
-shaped <- melt(multi_full, id="Date")
-
-
-p <- ggplot(data=shaped, aes_string(x="Date", y="Open_GOOG")) + 
-  geom_line(color="red", size=0.5) + 
-  geom_line(aes_string(y=Open.y), color="black", size=0.5) + 
-  geom_line(aes(x=Date, y=Open.x.x), color="green", size=0.5) + 
-  geom_line(aes(x=Date, y=Open.y.y), color="red", size=0.5) 
-p
-
-ggplot(shaped,aes(x=Date, y=value, colour=variable, group=variable)) + geom_line() +  scale_y_continuous(position="right") +
-  scale_x_date(date_breaks = "2 weeks", date_labels = "%b %Y") + 
-  geom_text(aes(label=c("FB", "GOOG", "AAPL"))) +
-  ggtitle("AAPL | Open Price | 1D | 06/05/2016 | 06/08/2016") + 
-  add_theme() 
-
-colnames(m2)
-
-regex_str <- paste("", sep = "_", codes, collapse="|")
