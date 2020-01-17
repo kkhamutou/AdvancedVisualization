@@ -113,11 +113,6 @@ multiplot <- function(..., plotlist=NULL, file, cols=1, layout=NULL) {
 #' @export
 plot_timeseries <- function(time_series, column_names, codes=NULL, gen_title=TRUE, collapse="2 weeks", func=NULL, ...) {
   
-  if (!requireNamespace("pkg", quietly = TRUE)) {
-    stop("Package \"pkg\" needed for this function to work. Please install it.",
-         call. = FALSE)
-  }
-  
   if (is.null(codes)) {
     codes <- names(time_series)
   }
