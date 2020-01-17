@@ -52,12 +52,50 @@ build_end_df <- function(df) {
   res <- res[order(res$price), ] 
 }
 
+require(grid)
+
+multiplot <- function(..., plotlist=NULL, file, cols=1, layout=NULL) {
+  
+  # Make a list from the ... arguments and plotlist
+  plots <- c(list(...), plotlist)
+  
+  numPlots = length(plots)
+  
+  # If layout is NULL, then use 'cols' to determine layout
+  if (is.null(layout)) {
+    # Make the panel
+    # ncol: Number of columns of plots
+    # nrow: Number of rows needed, calculated from # of cols
+    layout <- matrix(seq(1, cols * ceiling(numPlots/cols)),
+                     ncol = cols, nrow = ceiling(numPlots/cols))
+  }
+  
+  if (numPlots==1) {
+    print(plots[[1]])
+    
+  } else {
+    # Set up the page
+    grid.newpage()
+    pushViewport(viewport(layout = grid.layout(nrow(layout), ncol(layout))))
+    
+    # Make each plot, in the correct location
+    for (i in 1:numPlots) {
+      # Get the i,j matrix positions of the regions that contain this subplot
+      matchidx <- as.data.frame(which(layout == i, arr.ind = TRUE))
+      
+      print(plots[[i]], vp = viewport(layout.pos.row = matchidx$row,
+                                      layout.pos.col = matchidx$col))
+    }
+  }
+}
+
 #' Plot Quandl time-series
 #'
 #' Plot time-sereis from the Quandl Dataset.
 #' @param time_series List of data.frame retrieved from Quandl Dataset.
 #' @param column_names 	String or list of strings of titles for each column in this time-series. Map one or more columns from each time-sereis
 #' @param codes String or list of strings, code a.k.a ticker symbol on Quandle to be plotted. If NULL, then all codes are being included into a plot.
+#' @param gen_title String. Add automatically generated title.
 #' @param collapse A string giving the distance between breaks like "2 weeks", or "10 years". Default is 2 weeks.
 #' @param func If FALSE, STOP is a code for a predefined date range is not found, otherwise WARNIGN. Default=FALSE
 #' @param ... Other arguments passed on to methods. Not currently used.
@@ -73,7 +111,7 @@ build_end_df <- function(df) {
 #' plot.timeseries (time_series=time_series, column_names=c("Open", "Close"), codes=c("FB", "AAPL"), func=y~sqrt(x))
 #' }
 #' @export
-plot.timeseries <- function(time_series, column_names, codes=NULL, collapse="2 weeks", func=NULL, ...) {
+plot.timeseries <- function(time_series, column_names, codes=NULL, gen_title=TRUE, collapse="2 weeks", func=NULL, ...) {
   
   if (is.null(codes)) {
     codes <- names(time_series)
@@ -88,7 +126,7 @@ plot.timeseries <- function(time_series, column_names, codes=NULL, collapse="2 w
 
   min_date <- min(joined_series$Date)
   max_date <- max(joined_series$Date)
- 
+  
   plot_title <- sprintf("Symbol: %s | Price: %s | Start: %s | End: %s | Function: %s", 
                         paste(codes, collapse="; "), 
                         paste(column_names, collapse="; "), 
@@ -109,10 +147,12 @@ plot.timeseries <- function(time_series, column_names, codes=NULL, collapse="2 w
     geom_line(size=1.2) +  
     scale_y_continuous(position="right") +
     scale_x_date(date_breaks = collapse, date_labels = "%b %Y") + 
-    ggtitle(plot_title) + 
     theme(legend.position = "none") + 
     add_theme()
     
+  if (gen_title == TRUE) {
+    p <- p +  ggtitle(plot_title)
+  }
     for (row in 1:nrow(start_point)) {
       p <- p + add_text_annotate(start_point[row, ], x_margin=-10, row, h_just=0.5) + 
         add_text_annotate(end_point[row, ], x_margin=1, 0.3)
@@ -130,6 +170,47 @@ plot.timeseries <- function(time_series, column_names, codes=NULL, collapse="2 w
   
   p
 }
+
+#' Plot all Quandl time-series
+#'
+#' Plot all time-sereis from the Quandl Dataset on the same page.
+#' @param time_series List of data.frame retrieved from Quandl Dataset.
+#' @param column_names 	String or list of strings of titles for each column in this time-series. Map one or more columns from each time-sereis
+#' @param codes String or list of strings, code a.k.a ticker symbol on Quandle to be plotted. If NULL, then all codes are being included into a plot.
+#' @param by A string: code or columns. Split into multuple graps.
+#' @param ncol Integer, number of column
+#' @param gen_title String. Add automatically generated title.
+#' @param collapse A string giving the distance between breaks like "2 weeks", or "10 years". Default is 2 weeks.
+#' @param func If FALSE, STOP is a code for a predefined date range is not found, otherwise WARNIGN. Default=FALSE
+#' @param ... Other arguments passed on to methods. Not currently used.
+#' @return a ggplot object
+#' @examples \dontrun{
+#' # Plot only only High and Low prices for each code (symbol) 
+#' plot.timeseries (time_series=time_series, column_names=c("High", "Low"), codes=c("FB", "AAPL"))
+#' 
+#' # Plot only only Open and Close prices for Facebook (FB) and Apple (AAPL)
+#' plot.timeseries (time_series=time_series, column_names=c("Open", "Close"), codes=c("FB", "AAPL"))
+#' 
+#' # Plot only only Open and Close prices for Facebook (FB) and Apple (AAPL) and add square root function
+#' plot.timeseries (time_series=time_series, column_names=c("Open", "Close"), codes=c("FB", "AAPL"), func=y~sqrt(x))
+#' }
+#' @export
+
+plot.timeseries.all <- function(time_series, column_names, codes=NULL, by="codes", ncol = 2, collapse="2 weeks", func=NULL, ...) {
+  
+  if (is.null(codes)) {
+    codes <- names(time_series)
+  }
+  
+  plots <- list()
+  
+  for (i in get(by)) {
+    plots[[i]] <- plot.timeseries(time_series, column_names, codes)
+  }
+  
+  multiplot(plotlist = plots, cols = ncol)
+}
+
 
 #' Plot Quandl bar chart
 #'
