@@ -111,7 +111,7 @@ multiplot <- function(..., plotlist=NULL, file, cols=1, layout=NULL) {
 #' plot.timeseries (time_series=time_series, column_names=c("Open", "Close"), codes=c("FB", "AAPL"), func=y~sqrt(x))
 #' }
 #' @export
-plot.timeseries <- function(time_series, column_names, codes=NULL, gen_title=TRUE, collapse="2 weeks", func=NULL, ...) {
+plot_timeseries <- function(time_series, column_names, codes=NULL, gen_title=TRUE, collapse="2 weeks", func=NULL, ...) {
   
   if (is.null(codes)) {
     codes <- names(time_series)
@@ -196,7 +196,7 @@ plot.timeseries <- function(time_series, column_names, codes=NULL, gen_title=TRU
 #' }
 #' @export
 
-plot.timeseries.all <- function(time_series, column_names, codes=NULL, by="codes", ncol = 2, collapse="2 weeks", func=NULL, ...) {
+plot_timeseries_all <- function(time_series, column_names, codes=NULL, by="codes", ncol = 2, collapse="2 weeks", func=NULL, ...) {
   
   if (is.null(codes)) {
     codes <- names(time_series)
@@ -237,7 +237,7 @@ plot.timeseries.all <- function(time_series, column_names, codes=NULL, by="codes
 #' plot.barchart (time_series=time_series, column_names=c("Open", "Close"), codes=c("FB", "AAPL"), func=y~sqrt(x))
 #' }
 #' @export
-plot.barchart <- function(time_series, column_names, codes=NULL, func=NULL, ...) {
+plot_barchart <- function(time_series, column_names, codes=NULL, func=NULL, ...) {
   
   if (is.null(codes)) {
     codes <- names(time_series)

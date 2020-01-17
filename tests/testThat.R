@@ -1,6 +1,7 @@
 source("R/market_data_api.R")
 source("R/graphs.R")
 
+
 code <- c("FB", "AAPL", "MSFT", "T")
 start_date <- "2016-12-31"
 end_date <- "2018-12-31"
