@@ -1,5 +1,9 @@
-source("R/market_data_api.R")
-source("R/graphs.R")
+require(ggplot2)
+require(grid)
+require(dplyr)
+require(reshape2)
+require(tidyverse)
+require(RColorBrewer)
 
 
 code <- c("FB", "AAPL", "MSFT", "T")
