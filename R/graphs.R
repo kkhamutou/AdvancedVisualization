@@ -211,9 +211,9 @@ plot_timeseries_all <- function(time_series, column_names, codes=NULL, by="codes
   
   for (i in get(by)) {
     if (by == "codes") {
-      plots[[i]] <- plot.timeseries(time_series, column_names, i, collapse="2 weeks", func=func)
+      plots[[i]] <- plot_timeseries(time_series, column_names, i, collapse="2 weeks", func=func)
     }else {
-      plots[[i]] <- plot.timeseries(time_series, i, codes, collapse="2 weeks", func=func)
+      plots[[i]] <- plot_timeseries(time_series, i, codes, collapse="2 weeks", func=func)
     }
    
   }
