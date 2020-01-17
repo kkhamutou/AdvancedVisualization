@@ -113,6 +113,18 @@ multiplot <- function(..., plotlist=NULL, file, cols=1, layout=NULL) {
 #' @export
 plot_timeseries <- function(time_series, column_names, codes=NULL, gen_title=TRUE, collapse="2 weeks", func=NULL, ...) {
   
+  require(ggplot2)
+  require(grid)
+  require(dplyr)
+  require(reshape2)
+  require(tidyverse)
+  require(RColorBrewer)
+  
+  if (!requireNamespace("pkg", quietly = TRUE)) {
+    stop("Package \"pkg\" needed for this function to work. Please install it.",
+         call. = FALSE)
+  }
+  
   if (is.null(codes)) {
     codes <- names(time_series)
   }
@@ -198,6 +210,13 @@ plot_timeseries <- function(time_series, column_names, codes=NULL, gen_title=TRU
 
 plot_timeseries_all <- function(time_series, column_names, codes=NULL, by="codes", ncol = 2, collapse="2 weeks", func=NULL, ...) {
   
+  require(ggplot2)
+  require(grid)
+  require(dplyr)
+  require(reshape2)
+  require(tidyverse)
+  require(RColorBrewer)
+  
   if (is.null(codes)) {
     codes <- names(time_series)
   }
@@ -238,6 +257,13 @@ plot_timeseries_all <- function(time_series, column_names, codes=NULL, by="codes
 #' }
 #' @export
 plot_barchart <- function(time_series, column_names, codes=NULL, func=NULL, ...) {
+  
+  require(ggplot2)
+  require(grid)
+  require(dplyr)
+  require(reshape2)
+  require(tidyverse)
+  require(RColorBrewer)
   
   if (is.null(codes)) {
     codes <- names(time_series)
@@ -290,6 +316,13 @@ plot_barchart <- function(time_series, column_names, codes=NULL, func=NULL, ...)
 #' }
 #' @export
 plot_piechart <- function(time_series, w, codes=NULL, ...) {
+  
+  require(ggplot2)
+  require(grid)
+  require(dplyr)
+  require(reshape2)
+  require(tidyverse)
+  require(RColorBrewer)
   
   if (is.null(codes)) {
     codes <- names(time_series)
