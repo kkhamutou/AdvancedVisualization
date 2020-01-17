@@ -25,6 +25,9 @@ get.market.data(code, start_date, end_date, collapse = c("daily",
 list(data=dataframe of returns per stock, missingCode=vector of codes that do not satisfy input params)
 }
 \description{
+End of day US Stock Prices
+}
+\details{
 Retrieve data from the Quandl Dataset.
 }
 \note{

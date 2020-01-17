@@ -205,7 +205,12 @@ plot.timeseries.all <- function(time_series, column_names, codes=NULL, by="codes
   plots <- list()
   
   for (i in get(by)) {
-    plots[[i]] <- plot.timeseries(time_series, column_names, codes)
+    if (by == "codes") {
+      plots[[i]] <- plot.timeseries(time_series, column_names, i, collapse="2 weeks", func=func)
+    }else {
+      plots[[i]] <- plot.timeseries(time_series, i, codes, collapse="2 weeks", func=func)
+    }
+   
   }
   
   multiplot(plotlist = plots, cols = ncol)
@@ -246,7 +251,7 @@ plot.barchart <- function(time_series, column_names, codes=NULL, func=NULL, ...)
   min_date <- min(joined_series$Date)
   max_date <- max(joined_series$Date)
   
-  plot_title <- sprintf("Symbol: %s | Price: %s | Start: %s | End: %s | Function: %s (mean)", 
+  plot_title <- sprintf("Symbol: %s ", 
                         paste(codes, collapse="; "), 
                         paste(column_names, collapse="; "), 
                         min_date, 
@@ -303,6 +308,9 @@ plot_piechart <- function(time_series, w, codes=NULL, ...) {
     codes <- append(codes, 'Other')
   }
   
+  plot_title <- sprintf("Symbol: %s ", 
+                        paste(codes, collapse="; "))
+  
   data <- data.frame(codes=codes, weights=w)
   
   data <- data %>% 
@@ -315,7 +323,9 @@ plot_piechart <- function(time_series, w, codes=NULL, ...) {
     scale_fill_brewer(palette="Set1") +
     geom_text(aes(y = ypos, label = codes), color = "white", size=6) + 
     coord_polar(theta = "y", start=0) + 
+    ggtitle(plot_title) +
     add_theme()
+  
   p <- p +
     theme(legend.position="none", 
           axis.text = element_blank(),

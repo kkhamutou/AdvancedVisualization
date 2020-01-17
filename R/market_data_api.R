@@ -1,6 +1,6 @@
 #' End of day US Stock Prices
 #'
-#' Retrieve data from the Quandl Dataset.
+#' @details Retrieve data from the Quandl Dataset.
 #' @param code string or list of strings, code a.k.a ticker symbol on Quandle.
 #' @param start_date A Date object, format="YYYY-MM-DD". Retrieve data rows on and after the specified start date.
 #' @param end_date A Date object, format="YYYY-MM-DD". Retrieve data rows up to and including the specified end date.
