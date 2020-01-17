@@ -45,10 +45,10 @@ data <- get.market.data(code, start_date, end_date, collapse, api_key)
 plot_timeseries(data, column_names = c("Open"), collapse = "2 months")
 
 # Plot all
-plot_timeseries.all(data, column_names = c("Open"), by="codes", func = y~sqrt(x))
-plot_timeseries.all(data, column_names = c("Volume"), by="codes")
+plot_timeseries_all(data, column_names = c("Open"), by="codes", func = y~sqrt(x))
+plot_timeseries_all(data, column_names = c("Volume"), by="codes")
 
-plot_timeseries.all(data, column_names = c("Close", "Open", "High", "Low"), by="column_names", codes = "GOOG")
+plot_timeseries_all(data, column_names = c("Close", "Open", "High", "Low"), by="column_names", codes = "GOOG")
 
 
 code <- c("C", "JPM", "BAC", "WFC")
